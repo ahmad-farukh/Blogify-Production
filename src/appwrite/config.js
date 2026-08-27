@@ -6,14 +6,14 @@ export class Service {
     databases;
     bucket;
 
-   constructor(){
-    this.client
-    .setEndpoint(conf.appwriteUrl)
-    .setProject(conf.setProject)
+    constructor() {
+        this.client
+            .setEndpoint(conf.appwriteUrl)
+            .setProject(conf.appwriteProjectId); // ✅ FIXED: conf.appwriteProjectId
 
-    this.databases=new Databases(this.client);
-    this.bucket=new Storage(this.client);
-   }
+        this.databases = new Databases(this.client);
+        this.bucket = new Storage(this.client);
+    }
 
     async createPost({ title, slug, content, featuredImage, status, userId }) {
         try {
@@ -123,20 +123,19 @@ export class Service {
         }
     }
 
-
- getFilePreview(fileId) {
-    if (!fileId) return "";
-    try {
-        const result = this.bucket.getFileView(
-            conf.appwriteBucketId,
-            fileId
-        );
-        return result?.href || result.toString();
-    } catch (error) {
-        console.log("Appwrite service :: getFilePreview :: error", error);
-        return "";
+    getFilePreview(fileId) {
+        if (!fileId) return "";
+        try {
+            const result = this.bucket.getFileView(
+                conf.appwriteBucketId,
+                fileId
+            );
+            return result?.href || result.toString();
+        } catch (error) {
+            console.log("Appwrite service :: getFilePreview :: error", error);
+            return "";
+        }
     }
-}
 }
 
 const service = new Service();

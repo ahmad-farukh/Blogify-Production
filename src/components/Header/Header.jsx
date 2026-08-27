@@ -1,9 +1,8 @@
 import React from 'react'
-import { Container, Logo, LogoutBtn , Button} from '../index'
+import { Container, Logo, LogoutBtn } from '../index'
 import { Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-
 
 function Header() {
   const authStatus = useSelector((state) => state.auth.status)
@@ -49,10 +48,8 @@ function Header() {
 
           <ul className='flex ml-auto items-center space-x-2'>
             {navItems.map((item) => (
-              // FIX 1: item.active check kiya
               item.active ? (
                 <li key={item.name}>
-                  {/* FIX 2: Arrow function lagaya () => navigate(...) */}
                   <button 
                     onClick={() => navigate(item.slug)}
                     className='bg-red-600 text-white font-bold py-2 px-4 rounded hover:bg-red-700'
@@ -63,12 +60,10 @@ function Header() {
               ) : null
             ))}
 
-            {/* FIX 3: Logout Button added */}
+            {/* Logout Button directly rendered without nested <Button> wrapper */}
             {authStatus && (
               <li>
-                <Button >
-                    <LogoutBtn />
-                </Button>
+                <LogoutBtn />
               </li>
             )}
           </ul>

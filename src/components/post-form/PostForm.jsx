@@ -1,8 +1,8 @@
-// src/components/post-form/PostForm.jsx
 import React, { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button, Input, RTE, Select } from "..";
 import appwriteService from "../../appwrite/config";
+import authService from "../../appwrite/auth";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -26,6 +26,20 @@ export default function PostForm({ post }) {
         setLoading(true);
         setErrorMsg("");
         try {
+            // Get active user ID dynamically (Redux Store or Direct Appwrite Fallback)
+            let currentUserId = userData?.$id || userData?.userData?.$id;
+
+            if (!currentUserId) {
+                const currentUser = await authService.getCurrentUser();
+                currentUserId = currentUser?.$id;
+            }
+
+            if (!currentUserId && !post) {
+                setErrorMsg("User session not found. Please log in again.");
+                setLoading(false);
+                return;
+            }
+
             if (post) {
                 let fileId = post.featuredImage;
 
@@ -64,7 +78,7 @@ export default function PostForm({ post }) {
                         content: data.content,
                         featuredImage: fileId,
                         status: data.status,
-                        userId: userData?.$id,
+                        userId: currentUserId,
                     });
 
                     if (dbPost) {
@@ -89,7 +103,7 @@ export default function PostForm({ post }) {
                 .toLowerCase()
                 .replace(/[^a-zA-Z0-9\s-]/g, "")
                 .replace(/\s+/g, "-")
-                .slice(0, 35); // Keep within safe document ID limits
+                .slice(0, 35);
         }
         return "";
     }, []);
@@ -160,7 +174,7 @@ export default function PostForm({ post }) {
                 <Button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 font-bold rounded-xl text-white bg-red-600 border border-red-600   shadow-md transition-all disabled:opacity-50"
+                    className="w-full py-3 font-bold rounded-xl text-white bg-red-600 border border-red-600 shadow-md transition-all disabled:opacity-50"
                 >
                     {loading ? "Processing..." : post ? "Update Post" : "Publish Post"}
                 </Button>
